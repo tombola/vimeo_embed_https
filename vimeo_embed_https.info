@@ -1,0 +1,4 @@
+name = Vimeo Embed to https
+description = Input filter to fix vimeo fail on https sites
+core = 6.x
+package = Input Filters

@@ -1,0 +1,64 @@
+<?php
+/**
+ * This module is a simple fix for embed code provided by vimeo to allow the embed
+ * to be used on an SSL site (httpe).
+ * Vimeo issue here: http://vimeo.com/help/faq/embedding#https
+ *
+ * This module was created by Tom Readings by altering the 'filter_example' module
+ * provided in the Drupal developer examples (http://drupal.org/project/examples)
+ * 
+ * Implementation of hook_filter_tips().
+ */
+function vimeo_embed_https_filter_tips($delta, $format, $long = FALSE) {
+  switch ($delta) {
+    case 0:
+      if ($long) {
+        return t('Every instance of "http://player.vimeo.com" in the input text will be replaced with "%replacement".', array('%replacement' => variable_get('vimeo_embed_https_foo_' . $format, 'bar')));
+      }
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_filter().
+ */
+function vimeo_embed_https_filter($op, $delta = 0, $format = -1, $text = '') {
+  if ($op == 'list') {
+    return array(
+      0 => t('Substitute "http://player.vimeo.com"'),
+    );
+  }
+  switch ($delta) {
+    case 0:
+      switch ($op) {
+        case 'description':
+          return t('Substitutes a custom string for the string "http://player.vimeo.com" in the text.');
+        // We don't need the "prepare" operation for this filter, but it's required
+        // to at least return the input text as-is.
+        case 'prepare':
+          return $text;
+
+        // The actual filtering is performed here. The supplied text should be
+        // returned, once any necessary substitutions have taken place.
+        case 'process':
+          return str_replace('http://player.vimeo.com', variable_get("vimeo_embed_https_foo_$format", 'bar'), $text);
+
+        // administrator settings
+        case 'settings':
+          $form['vimeo_embed_https'] = array(
+            '#type' => 'fieldset',
+            '#title' => t('Vimeo url filter'),
+            '#collapsible' => TRUE,
+            '#collapsed' => TRUE,
+          );
+          $form['vimeo_embed_https']["vimeo_embed_https_foo_$format"] = array(
+            '#type' => 'textfield',
+            '#title' => t('Substitution string'),
+            '#default_value' => variable_get("vimeo_embed_https_foo_$format", 'bar'),
+            '#description' => t('The string to substitute for "http://player.vimeo.com" everywhere in the text.')
+          );
+          return $form;
+      }
+      break;
+  }
+}
