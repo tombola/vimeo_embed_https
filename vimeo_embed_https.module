@@ -32,7 +32,7 @@ function vimeo_embed_https_filter($op, $delta = 0, $format = -1, $text = '') {
     case 0:
       switch ($op) {
         case 'description':
-          return t('Substitutes a hardcoded https url for the strings "http://player.vimeo.com" or "http://www.lucidchart.com/" in the text.');
+          return t('Substitutes a custom string for the string "http://player.vimeo.com" in the text.');
         // We don't need the "prepare" operation for this filter, but it's required
         // to at least return the input text as-is.
         case 'prepare':
@@ -41,13 +41,9 @@ function vimeo_embed_https_filter($op, $delta = 0, $format = -1, $text = '') {
         // The actual filtering is performed here. The supplied text should be
         // returned, once any necessary substitutions have taken place.
         case 'process':
-          // $config_replace = variable_get("vimeo_embed_https_foo_$format", 'https://player.vimeo.com');
-          $text = str_replace('http://player.vimeo.com', 'https://player.vimeo.com', $text);
-          $text = str_replace('http://www.lucidchart.com/', 'https://www.lucidchart.com/', $text);
-          return $filtered_string;
-
+          return str_replace('http://player.vimeo.com', variable_get("vimeo_embed_https_foo_$format", 'https://player.vimeo.com'), $text);
+  
         // administrator settings
-        /*
         case 'settings':
           $form['vimeo_embed_https'] = array(
             '#type' => 'fieldset',
@@ -60,8 +56,8 @@ function vimeo_embed_https_filter($op, $delta = 0, $format = -1, $text = '') {
             '#title' => t('Substitution string'),
             '#default_value' => variable_get("vimeo_embed_https_foo_$format", 'https://player.vimeo.com'),
             '#description' => t('The string to substitute for "http://player.vimeo.com" everywhere in the text.')
-          );        
-          return $form;*/
+          );
+          return $form;
       }
       break;
   }
